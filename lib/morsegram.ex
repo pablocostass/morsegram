@@ -15,4 +15,9 @@ defmodule Morsegram do
   def hello do
     :world
   end
+
+  def help do
+    IO.puts("Morsegram.hello()")
+  end
+
 end
