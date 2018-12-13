@@ -1,0 +1,9 @@
+language: elixir
+elixir:
+  - 1.7.3
+env:
+  - MIX_ENV=test
+script:
+  - mix local.hex --force
+  - mix deps.get
+  - mix test
