@@ -17,14 +17,15 @@ defmodule Room do
     to the user list.              
     """
     @impl true
-    def handle_cast({:connect, user}, users), do: {:noreply, {room_name, users ++ [user]}}
+    def handle_cast({:connect, user}, {room_name, users}), do: 
+        {:noreply, {room_name, users ++ [user]}}
     
     @doc """
     Receives a tuple of an user and its message and 
     sends said message to every user on the room.                
     """
     @impl true  
-    def handle_cast({:message, msg, user}, {room_name, users) do
+    def handle_cast({:message, msg, user}, {room_name, users}) do
         Enum.map(users, fn x -> send x, {user, msg} end)
         {:noreply, users}
     end

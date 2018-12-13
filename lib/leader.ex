@@ -12,11 +12,12 @@ defmodule Leader do
       :world
     end
 
-    defp create_room(room), do: :ok
+    def spawn_room(room), do: :ok
 
-    @doc """
-    Deletes a room if the caller is the last one on it.
-    """
-    def delete_room(room), do: ok
+    def init, do: :ok
+    
+    def terminate, do: :ok
+
+    def start, do: :ok
   end
   
