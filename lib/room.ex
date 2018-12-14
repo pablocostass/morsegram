@@ -28,8 +28,9 @@ defmodule Room do
             Enum.reject(users, fn x -> x == user end)
             |> Enum.map(fn x -> global_send(x, {:someone_connected, room_name, user}) end)
             {:noreply, {room_name, users ++ [user]}}
+        else
+            {:noreply, {room_name, users}}
         end
-        {:noreply, {room_name, users}}
     end
     @doc """
     Receives a tuple of an user and its message and
