@@ -19,14 +19,17 @@ defmodule Room do
     end
 
     @doc """
-    Connects an user from the room, adding it
+    Connects an user to the room, adding it
     to the user list.
     """
     def handle_cast({:connect, user}, {room_name, users}) do
-        global_send(user, {:connected, room_name})
-        Enum.reject(users, fn x -> x == user end)
-        |> Enum.map(fn x -> global_send(x, {:someone_connected, room_name, user}) end)
-        {:noreply, {room_name, users ++ [user]}}
+        if Enum.find(users, fn x -> x == user end) == nil do
+            global_send(user, {:connected, room_name})
+            Enum.reject(users, fn x -> x == user end)
+            |> Enum.map(fn x -> global_send(x, {:someone_connected, room_name, user}) end)
+            {:noreply, {room_name, users ++ [user]}}
+        end
+        {:noreply, {room_name, users}}
     end
     @doc """
     Receives a tuple of an user and its message and
@@ -37,7 +40,7 @@ defmodule Room do
         {:noreply, {room_name, users}}
     end
 
-    def handle_cast({:list, user, _}, {room_name , users}) do
+    def handle_cast({:list, user}, {room_name , users}) do
         global_send(user, {:list, users})
         {:noreply, {room_name, users}}
     end
@@ -47,7 +50,6 @@ defmodule Room do
     from the user list.
     """
     def handle_cast({:disconnect, user}, {room_name, [user]}) do
-        #GenServer.stop(room_name)
         :global.unregister_name(user)
         {:stop, :normal, {room_name, []}}
     end
@@ -61,7 +63,8 @@ defmodule Room do
     end
 
     @doc """
-    When the room crashes.
+    When the room is stopped for whatever reason 
+    it unregisters its name so that it can be reused in the future.
     """
     def terminate(_reason, {room_name, _users}) do
         :global.unregister_name(room_name)

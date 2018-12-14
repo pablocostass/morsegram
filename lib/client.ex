@@ -11,25 +11,25 @@ defmodule Client do
 
     def search_room(topic, username) do
         if Enum.find(:global.registered_names(), fn x -> x == username end) == nil do
-            pid = spawn_link(Client, :listen, [])
+            pid = spawn_link(Client, fn -> :listen end, [])
             :global.register_name(username, pid)
         end
         GenServer.cast({:global, :morsegram}, {:search, topic, username})
     end
 
-    def send_message(message, username, room) do
+    def send_message(message, room, username) do
         GenServer.cast({:global, room}, {:message, message, username})
     end
 
-    def list_users(username, room) do
-        GenServer.cast({:global, room}, {:list, username, room})
+    def list_users(room, username) do
+        GenServer.cast({:global, room}, {:list, username})
     end
 
     def disconnect_from(room, username) do
         GenServer.cast({:global, room}, {:disconnect, username})
     end
 
-    def listen() do
+    defp listen() do
         receive do
             {:message, room, user, msg} ->
                 IO.puts("[#{room}] #{user}: #{msg}")
