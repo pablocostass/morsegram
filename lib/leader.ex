@@ -20,6 +20,7 @@ defmodule Leader do
           GenServer.start_link(Room, {topic, user}, name: {:global, topic})
           {:noreply, state ++ [topic]}
         _ -> 
+          GenServer.cast({:global, topic}, {:connect, user})
           {:noreply, state}
       end
     end
