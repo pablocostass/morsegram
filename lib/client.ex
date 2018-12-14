@@ -2,10 +2,10 @@ defmodule Client do
     @moduledoc """
     Documentation for Morsegram.
     """
-  
+
     @doc """
     Given a topic it searches for a room that matches it.
-    If it finds one the client will join the room, otherwise 
+    If it finds one the client will join the room, otherwise
     first the room will be created.
     """
 
@@ -18,7 +18,11 @@ defmodule Client do
     end
 
     def send_message(message, username, room) do
-        GenServer.cast({:global, room}, {:message, message, username})        
+        GenServer.cast({:global, room}, {:message, message, username})
+    end
+
+    def list_users(username, room) do
+        GenServer.cast({:global, room}, {:list, username, room})
     end
 
     def disconnect_from(room, username) do
@@ -27,11 +31,14 @@ defmodule Client do
 
     def listen() do
         receive do
-            {:message, room, user, msg} -> 
+            {:message, room, user, msg} ->
                 IO.puts("[#{room}] #{user}: #{msg}")
                 listen()
-            {:connected, room} -> 
+            {:connected, room} ->
                 IO.puts("[Connected to room #{room}]")
+                listen()
+            {:list, users} ->
+                IO.inspect users
                 listen()
             {:someone_connected, room, user} ->
                 IO.puts("[User #{user} has connected to the room #{room}]")
@@ -39,10 +46,9 @@ defmodule Client do
             {:someone_disconnected, room, user} ->
                 IO.puts("[User #{user} has disconnected from the room #{room}]")
                 listen()
-            {:disconnected, room} -> 
+            {:disconnected, room} ->
                 IO.puts("[Disconnected from room #{room}]")
         end
     end
-    
+
   end
-  
