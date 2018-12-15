@@ -1,6 +1,6 @@
 defmodule Client do
     @moduledoc """
-    Documentation for Morsegram.
+    Documentation for Client.
     """
 
     @doc """
@@ -8,7 +8,6 @@ defmodule Client do
     If it finds one the client will join the room, otherwise
     first the room will be created.
     """
-
     def search_room(topic, username) do
         if Enum.find(:global.registered_names(), fn x -> x == username end) == nil do
             pid = spawn_link(fn -> listen() end)
@@ -17,14 +16,23 @@ defmodule Client do
         GenServer.cast({:global, :morsegram}, {:search, topic, username})
     end
 
+    @doc """
+    Sends a message to a room under the given username.
+    """
     def send_message(message, room, username) do
         GenServer.cast({:global, room}, {:message, message, username})
     end
 
+    @doc """
+    Sends a message to a room under the given username.
+    """
     def list_users(room, username) do
         GenServer.cast({:global, room}, {:list, username})
     end
 
+    @doc """
+    Disconnects an user from a given room.
+    """
     def disconnect_from(room, username) do
         GenServer.cast({:global, room}, {:disconnect, username})
     end

@@ -4,7 +4,8 @@ defmodule Morsegram do
   """
 
   @doc """
-  Hello world.
+  Function used to set everything up for the client.
+  Also needed by OptionParser to work.
 
   ## Examples
 

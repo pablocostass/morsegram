@@ -1,33 +1,41 @@
 defmodule Leader do
   use GenServer
-    @moduledoc """
-    Documentation for Morsegram.
-    """
+  @moduledoc """
+  Documentation for Leader.
+  """
 
-    @doc """
-    Given a topic it searches for a room that matches it.
-    If it finds one the client will join the room, otherwise
-    first the room will be created.
-    """
-    def init(state), do: {:ok, state}
+  @doc """
+  Sets the server state.
+  """
+  def init(state), do: {:ok, state}
 
-    def handle_call({:register, _username}), do: :ok
-
-    def handle_cast({:search, topic, user}, state) do
-      room = Enum.find(state, fn x -> x == topic end)
-      case room do
-        nil ->
-          GenServer.start_link(Room, {topic, user}, name: {:global, topic})
-          {:noreply, state ++ [topic]}
-        _ ->
-          GenServer.cast({:global, topic}, {:connect, user})
-          {:noreply, state}
-      end
-    end
-
-    def terminate, do: :ok
-
-    def start do
-      GenServer.start_link(Leader, [], name: {:global, :morsegram})
+  @doc """
+  Handles the search of a room done by an user 
+  and connects them to it.
+  The room is created if it did not exist.
+  """
+  def handle_cast({:search, topic, user}, state) do
+    room = Enum.find(state, fn x -> x == topic end)
+    case room do
+      nil ->
+        GenServer.start_link(Room, {topic, user}, name: {:global, topic})
+        {:noreply, state ++ [topic]}
+      _ ->
+        GenServer.cast({:global, topic}, {:connect, user})
+        {:noreply, state}
     end
   end
+
+  @doc """
+  Invoked when the server crashes or goes down.
+  """
+  def terminate, do: :ok
+
+  @doc """
+  Initializes the server and registers it globally 
+  under the atom :morsegram.
+  """
+  def start do
+    GenServer.start_link(Leader, [], name: {:global, :morsegram})
+  end
+end
