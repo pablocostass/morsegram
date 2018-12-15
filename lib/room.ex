@@ -32,6 +32,7 @@ defmodule Room do
             {:noreply, {room_name, users}}
         end
     end
+
     @doc """
     Receives a tuple of an user and its message and
     sends said message to every user on the room.
@@ -51,6 +52,7 @@ defmodule Room do
     from the user list.
     """
     def handle_cast({:disconnect, user}, {room_name, [user]}) do
+        global_send(user, {:disconnected, room_name})
         :global.unregister_name(user)
         {:stop, :normal, {room_name, []}}
     end
