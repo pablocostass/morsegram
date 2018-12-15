@@ -3,7 +3,9 @@ defmodule Room do
     @moduledoc """
     Documentation for Room.
     """
-
+    def start_link({room_name, user}) do
+        GenServer.start_link(Room, {room_name, user}, name: {:global, room_name})
+    end
     defp global_send(pid, msg) do
         :global.whereis_name(pid)
         |> send(msg)
@@ -16,7 +18,7 @@ defmodule Room do
         Process.flag(:trap_exit, true)
         global_send(user, {:connected, room_name})
         {:ok, {room_name, [user]}}
-    end
+    end 
 
     @doc """
     Connects an user to the room, adding it
@@ -73,7 +75,8 @@ defmodule Room do
 
     @doc """
     When the room is stopped for whatever reason 
-    it unregisters its name so that it can be reused in the future.
+    it unregisters its name so that it can be reused in the future, 
+    not before warning the server that the room name is now free.
     """
     def terminate(_reason, {room_name, _users}) do
         GenServer.cast({:global, :morsegram}, {:delete_me, room_name})
