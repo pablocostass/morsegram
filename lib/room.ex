@@ -3,21 +3,27 @@ defmodule Room do
     @moduledoc """
     Documentation for Room.
     """
-    def start_link({room_name, user}) do
-        GenServer.start_link(Room, {room_name, user}, name: {:global, room_name})
+    def start_link({room_name, users}) do
+        GenServer.start_link(Room, {room_name, users}, name: {:global, room_name})
     end
     defp global_send(pid, msg) do
         :global.whereis_name(pid)
         |> send(msg)
     end
 
+    defp connect_diffusion(user, users, room_name) do
+        global_send(user, {:connected, room_name})
+        Enum.reject(users, fn x -> x == user end)
+        |> Enum.map(fn x -> global_send(x, {:someone_connected, room_name, user}) end)
+    end
+
     @doc """
     Initializes the room.
     """
-    def init({room_name, user}) do
+    def init({room_name, users}) do
         Process.flag(:trap_exit, true)
-        global_send(user, {:connected, room_name})
-        {:ok, {room_name, [user]}}
+        Enum.map(users,fn user -> connect_diffusion(user, users, room_name) end)
+        {:ok, {room_name, users}}
     end 
 
     @doc """
@@ -26,9 +32,7 @@ defmodule Room do
     """
     def handle_cast({:connect, user}, {room_name, users}) do
         if Enum.find(users, fn x -> x == user end) == nil do
-            global_send(user, {:connected, room_name})
-            Enum.reject(users, fn x -> x == user end)
-            |> Enum.map(fn x -> global_send(x, {:someone_connected, room_name, user}) end)
+            connect_diffusion(user, users, room_name)
             {:noreply, {room_name, users ++ [user]}}
         else
             {:noreply, {room_name, users}}

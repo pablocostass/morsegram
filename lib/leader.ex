@@ -21,8 +21,7 @@ defmodule Leader do
     room = Enum.find(state, fn x -> x == topic end)
     case room do
       nil ->
-        MainSupervisor.start_child({topic, user})
-        #GenServer.start_link(Room, {topic, user}, name: {:global, topic})
+        MainSupervisor.start_child({topic, [user]})
         {:noreply, state ++ [topic]}
       _ ->
         GenServer.cast({:global, topic}, {:connect, user})

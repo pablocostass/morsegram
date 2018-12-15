@@ -14,9 +14,6 @@ defmodule MainSupervisor do
         %{
             id: room_name,
             start: {RoomSupervisor, :start_link, [args]},
-            # :brutal_kill, :infinity
-            #shutdown: 5_000,
-            # :temporary, :transient, :permanent
             restart: :transient,
             type: :worker
         }

@@ -1,8 +1,8 @@
 defmodule RoomSupervisor do
     use Supervisor
     
-    def start_link({room_name, _user} = args) do
-        Supervisor.start_link(__MODULE__, args, name: __MODULE__)
+    def start_link(args) do
+        Supervisor.start_link(__MODULE__, args)
     end
 
     def init({room_name, _user} = args) do
@@ -10,12 +10,9 @@ defmodule RoomSupervisor do
             [%{
                 id: room_name,
                 start: {Room, :start_link, [args]},
-                # :brutal_kill, :infinity
-                #shutdown: 5_000,
-                # :temporary, :transient, :permanent
                 restart: :transient,
                 type: :worker
             }]
-        Supervisor.init(child_spec, [strategy: :one_for_one, name: {:global, room_name}])
+        Supervisor.init(child_spec, [strategy: :one_for_one])
     end
 end
