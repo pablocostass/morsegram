@@ -32,7 +32,7 @@ defmodule Client do
     defp listen() do
         receive do
             {:message, room, user, msg} ->
-                IO.puts("[#{room}] #{user}: #{msg}")
+                IO.write("[#{room}] #{user}: #{msg}")
                 listen()
             {:connected, room} ->
                 IO.puts("[Connected to room #{room}]")
