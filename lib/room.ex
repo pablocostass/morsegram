@@ -6,6 +6,7 @@ defmodule Room do
     def start_link({room_name, users}) do
         GenServer.start_link(Room, {room_name, users}, name: {:global, room_name})
     end
+
     defp global_send(pid, msg) do
         :global.whereis_name(pid)
         |> send(msg)
@@ -77,6 +78,9 @@ defmodule Room do
         {:noreply, {room_name, new_users}}
     end
 
+    def handle_call(:backup, _from, {_room_name, users} = state) do
+        {:reply, users, state}
+    end
     @doc """
     When the room is stopped for whatever reason 
     it unregisters its name so that it can be reused in the future, 

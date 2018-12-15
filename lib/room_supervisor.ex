@@ -7,9 +7,22 @@ defmodule RoomSupervisor do
 
     def init({room_name, _user} = args) do
         child_spec =     
-            [%{
+            [
+            %{
                 id: room_name,
                 start: {Room, :start_link, [args]},
+                restart: :transient,
+                type: :worker
+            },
+            %{
+                id: to_string(room_name) <> "Stash",
+                start: {Stash, :start_link, [args]},
+                restart: :transient,
+                type: :worker
+            },
+            %{
+                id: to_string(room_name) <> "Periodic",
+                start: {PeriodicRoomBackup, :start_link, [room_name]},
                 restart: :transient,
                 type: :worker
             }]
