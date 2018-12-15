@@ -76,6 +76,7 @@ defmodule Room do
     it unregisters its name so that it can be reused in the future.
     """
     def terminate(_reason, {room_name, _users}) do
+        GenServer.cast({:global, :morsegram}, {:delete_me, room_name})
         :global.unregister_name(room_name)
     end
   

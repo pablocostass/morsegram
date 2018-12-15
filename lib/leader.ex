@@ -26,6 +26,10 @@ defmodule Leader do
     end
   end
 
+  def handle_cast({:delete_me, topic}, state) do
+    {:noreply, state -- [topic]}
+  end
+
   @doc """
   Invoked when the server crashes or goes down.
   """
