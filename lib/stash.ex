@@ -11,8 +11,6 @@ defmodule Stash do
     GenServer.start_link(Stash, {room_name, users}, name: {:global, to_string(room_name) <> "Stash"})
   end
 
-  #Callbacks
-
   @doc """
   Initializes the stash.
   """

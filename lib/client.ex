@@ -20,7 +20,8 @@ defmodule Client do
     Sends a message to a room under the given username.
     """
     def send_message(message, room, username) do
-        GenServer.cast({:global, room}, {:message, message, username})
+        timestamp = Support.timestamp(Time.utc_now)
+        GenServer.cast({:global, room}, {:message, message, username, timestamp})
     end
 
     @doc """
@@ -39,20 +40,20 @@ defmodule Client do
 
     defp listen() do
         receive do
-            {:message, room, user, msg} ->
-                IO.write("[#{room}] #{user}: #{msg}")
-            {:connected, room} ->
-                IO.puts("[Connected to room #{room}]")
+            {:message, room, user, msg, timestamp} ->
+                IO.write("[#{Support.color_this(timestamp, :light_cyan)}] [#{room}] #{user}: #{msg}")
+            {:connected, room, timestamp} ->
+                IO.puts("[#{Support.color_this(timestamp, :light_cyan)}] [Connected to room #{room}]")
             {:list, users} ->
                 IO.inspect users
-            {:someone_connected, room, user} ->
-                IO.puts("[User #{user} has connected to the room #{room}]")
-            {:someone_disconnected, room, user} ->
-                IO.puts("[User #{user} has disconnected from the room #{room}]")
-            {:disconnected, room} ->
-                IO.puts("[Disconnected from room #{room}]")
+            {:someone_connected, room, user, timestamp} ->
+                IO.puts("[#{Support.color_this(timestamp, :light_cyan)}] [User #{user} has connected to the room #{room}]")
+            {:someone_disconnected, room, user, timestamp} ->
+                IO.puts("[#{Support.color_this(timestamp, :light_cyan)}] [User #{user} has disconnected from the room #{room}]")
+            {:disconnected, room, timestamp} ->
+                IO.puts("[#{Support.color_this(timestamp, :light_cyan)}] [Disconnected from room #{room}]")
         end
         listen()
     end
 
-  end
+end

@@ -34,15 +34,10 @@ defmodule Morsegram do
     |> Node.connect()
     IO.puts("Welcome to Morsegram!")
     user
-  end  
-
-  defp color_this(str, color) do
-    :erlang.apply(IO.ANSI, color, [])
-      <> str <> IO.ANSI.default_color()
   end
 
   defp prompt(username) do
-    {:ok, [cmd, arg]} = :io.fread(color_this("$ ", :cyan), '~ts ~ts')
+    {:ok, [cmd, arg]} = :io.fread(Support.color_this("$ ", :cyan), '~ts ~ts')
     run(username, cmd, arg)
     prompt(username)
   end
