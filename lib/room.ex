@@ -3,6 +3,10 @@ defmodule Room do
     @moduledoc """
     Documentation for Room.
     """
+
+    @doc """
+    Starts the room with a given name and user list.
+    """
     def start_link({room_name, users}) do
         GenServer.start_link(Room, {room_name, users}, name: {:global, room_name})
     end
@@ -12,6 +16,9 @@ defmodule Room do
         |> send(msg)
     end
 
+    @doc """
+    Notifies the users in a given room of an user connecting to the room.
+    """
     defp connect_diffusion(user, users, room_name) do
         global_send(user, {:connected, room_name})
         Enum.reject(users, fn x -> x == user end)
@@ -21,15 +28,15 @@ defmodule Room do
     @doc """
     Initializes the room.
     """
-    def init({room_name, users}) do
+    def init({room_name, _users}) do
         Process.flag(:trap_exit, true)
+        users = GenServer.call({:global, to_string(room_name) <> "Stash"}, :get_list)
         Enum.map(users,fn user -> connect_diffusion(user, users, room_name) end)
         {:ok, {room_name, users}}
     end 
 
     @doc """
-    Connects an user to the room, adding it
-    to the user list.
+    Connects an user to the room, adding it to the user list.
     """
     def handle_cast({:connect, user}, {room_name, users}) do
         if Enum.find(users, fn x -> x == user end) == nil do
@@ -61,8 +68,7 @@ defmodule Room do
 
     @doc """
     Disconnects an user from the room, removing it
-    from the user list and notifying the rest of the users 
-    on the room about it.
+    from the user list and notifying the rest of the users on the room about it.
     The room is terminated if the user being disconnected is the last one on it.
     """
     def handle_cast({:disconnect, user}, {room_name, [user]}) do
@@ -78,9 +84,13 @@ defmodule Room do
         {:noreply, {room_name, new_users}}
     end
 
+    @doc """
+    Returns the current user list from the room.
+    """
     def handle_call(:backup, _from, {_room_name, users} = state) do
         {:reply, users, state}
     end
+
     @doc """
     When the room is stopped for whatever reason 
     it unregisters its name so that it can be reused in the future, 
@@ -90,6 +100,5 @@ defmodule Room do
         GenServer.cast({:global, :morsegram}, {:delete_me, room_name})
         :global.unregister_name(room_name)
     end
-  
-  end
-  
+
+end
