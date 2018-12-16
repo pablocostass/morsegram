@@ -13,8 +13,7 @@ defmodule Leader do
   end
 
   @doc """
-  Handles the search of a room done by an user 
-  and connects him to it.
+  Handles the search of a room done by an user and connects them to it.
   The room is created if it did not exist.
   """
   def handle_cast({:search, topic, user}, state) do
@@ -44,8 +43,7 @@ defmodule Leader do
   def terminate, do: :ok
 
   @doc """
-  Initializes the server and registers it globally 
-  under the atom :morsegram.
+  Initializes the server and registers it globally under the atom :morsegram.
   """
   def start do
     GenServer.start_link(Leader, [], name: {:global, :morsegram})
