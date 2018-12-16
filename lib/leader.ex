@@ -14,7 +14,7 @@ defmodule Leader do
 
   @doc """
   Handles the search of a room done by an user 
-  and connects them to it.
+  and connects him to it.
   The room is created if it did not exist.
   """
   def handle_cast({:search, topic, user}, state) do
