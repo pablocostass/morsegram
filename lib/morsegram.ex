@@ -76,6 +76,6 @@ defmodule Morsegram do
     IO.puts "\t Closes Morsegram after printing you a goodbye message"
   end
   defp run(_, cmd, arg) do
-    IO.puts "Unknown command '#{cmd} #{arg}', run the command '#help' to get the list of possible commands!"
+    IO.puts "Unknown command '#{cmd} #{arg}', run the command '# help' to get the list of possible commands!"
   end
 end

@@ -4,29 +4,43 @@ defmodule Room do
     Documentation for Room.
     """
 
+    @doc """
+    Starts the room with a given name and user list.
+    """
+    def start_link({room_name, users}) do
+        GenServer.start_link(Room, {room_name, users}, name: {:global, room_name})
+    end
+
     defp global_send(pid, msg) do
         :global.whereis_name(pid)
         |> send(msg)
     end
 
     @doc """
-    Initializes the room.
+    Notifies the users in a given room of an user connecting to the room.
     """
-    def init({room_name, user}) do
-        Process.flag(:trap_exit, true)
+    defp connect_diffusion(user, users, room_name) do
         global_send(user, {:connected, room_name})
-        {:ok, {room_name, [user]}}
+        Enum.reject(users, fn x -> x == user end)
+        |> Enum.map(fn x -> global_send(x, {:someone_connected, room_name, user}) end)
     end
 
     @doc """
-    Connects an user to the room, adding it
-    to the user list.
+    Initializes the room.
+    """
+    def init({room_name, _users}) do
+        Process.flag(:trap_exit, true)
+        users = GenServer.call({:global, to_string(room_name) <> "Stash"}, :get_list)
+        Enum.map(users,fn user -> connect_diffusion(user, users, room_name) end)
+        {:ok, {room_name, users}}
+    end 
+
+    @doc """
+    Connects an user to the room, adding it to the user list.
     """
     def handle_cast({:connect, user}, {room_name, users}) do
         if Enum.find(users, fn x -> x == user end) == nil do
-            global_send(user, {:connected, room_name})
-            Enum.reject(users, fn x -> x == user end)
-            |> Enum.map(fn x -> global_send(x, {:someone_connected, room_name, user}) end)
+            connect_diffusion(user, users, room_name)
             {:noreply, {room_name, users ++ [user]}}
         else
             {:noreply, {room_name, users}}
@@ -54,8 +68,7 @@ defmodule Room do
 
     @doc """
     Disconnects an user from the room, removing it
-    from the user list and notifying the rest of the users 
-    on the room about it.
+    from the user list and notifying the rest of the users on the room about it.
     The room is terminated if the user being disconnected is the last one on it.
     """
     def handle_cast({:disconnect, user}, {room_name, [user]}) do
@@ -72,13 +85,20 @@ defmodule Room do
     end
 
     @doc """
+    Returns the current user list from the room.
+    """
+    def handle_call(:backup, _from, {_room_name, users} = state) do
+        {:reply, users, state}
+    end
+
+    @doc """
     When the room is stopped for whatever reason 
-    it unregisters its name so that it can be reused in the future.
+    it unregisters its name so that it can be reused in the future, 
+    not before warning the server that the room name is now free.
     """
     def terminate(_reason, {room_name, _users}) do
         GenServer.cast({:global, :morsegram}, {:delete_me, room_name})
         :global.unregister_name(room_name)
     end
-  
-  end
-  
+
+end

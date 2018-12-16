@@ -7,7 +7,10 @@ defmodule Leader do
   @doc """
   Sets the server state.
   """
-  def init(state), do: {:ok, state}
+  def init(state) do
+    MainSupervisor.start_link([])
+    {:ok, state}
+  end
 
   @doc """
   Handles the search of a room done by an user 
@@ -18,7 +21,7 @@ defmodule Leader do
     room = Enum.find(state, fn x -> x == topic end)
     case room do
       nil ->
-        GenServer.start_link(Room, {topic, user}, name: {:global, topic})
+        MainSupervisor.start_child({topic, [user]})
         {:noreply, state ++ [topic]}
       _ ->
         GenServer.cast({:global, topic}, {:connect, user})
@@ -26,12 +29,17 @@ defmodule Leader do
     end
   end
 
+  @doc """
+  Deletes a room from the server state.
+  """
   def handle_cast({:delete_me, topic}, state) do
+    pid = :global.whereis_name(to_string(topic) <> "RoomSupervisor")
+    DynamicSupervisor.terminate_child(MainSupervisor, pid)
     {:noreply, state -- [topic]}
   end
 
   @doc """
-  Invoked when the server crashes or goes down.
+  Invoked when the server goes down.
   """
   def terminate, do: :ok
 
