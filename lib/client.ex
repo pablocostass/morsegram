@@ -24,7 +24,7 @@ defmodule Client do
     end
 
     @doc """
-    Sends a message to a room under the given username.
+    List the users from a given room under a username.
     """
     def list_users(room, username) do
         GenServer.cast({:global, room}, {:list, username})
@@ -41,22 +41,18 @@ defmodule Client do
         receive do
             {:message, room, user, msg} ->
                 IO.write("[#{room}] #{user}: #{msg}")
-                listen()
             {:connected, room} ->
                 IO.puts("[Connected to room #{room}]")
-                listen()
             {:list, users} ->
                 IO.inspect users
-                listen()
             {:someone_connected, room, user} ->
                 IO.puts("[User #{user} has connected to the room #{room}]")
-                listen()
             {:someone_disconnected, room, user} ->
                 IO.puts("[User #{user} has disconnected from the room #{room}]")
-                listen()
             {:disconnected, room} ->
                 IO.puts("[Disconnected from room #{room}]")
         end
+        listen()
     end
 
   end

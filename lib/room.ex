@@ -16,9 +16,6 @@ defmodule Room do
         |> send(msg)
     end
 
-    @doc """
-    Notifies the users in a given room of an user connecting to the room.
-    """
     defp connect_diffusion(user, users, room_name) do
         global_send(user, {:connected, room_name})
         Enum.reject(users, fn x -> x == user end)
@@ -73,14 +70,12 @@ defmodule Room do
     """
     def handle_cast({:disconnect, user}, {room_name, [user]}) do
         global_send(user, {:disconnected, room_name})
-        :global.unregister_name(user)
         {:stop, :normal, {room_name, []}}
     end
     def handle_cast({:disconnect, user}, {room_name, users}) do
         new_users = Enum.reject(users, fn x -> x == user end)
         Enum.map(new_users, fn x -> global_send(x, {:someone_disconnected, room_name, user}) end)
         global_send(user, {:disconnected, room_name})
-        :global.unregister_name(user)
         {:noreply, {room_name, new_users}}
     end
 

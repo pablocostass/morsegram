@@ -36,8 +36,13 @@ defmodule Morsegram do
     user
   end  
 
+  defp color_this(str, color) do
+    :erlang.apply(IO.ANSI, color, [])
+      <> str <> IO.ANSI.default_color()
+  end
+
   defp prompt(username) do
-    {:ok, [cmd, arg]} = :io.fread('$ ', '~ts ~ts')
+    {:ok, [cmd, arg]} = :io.fread(color_this("$ ", :cyan), '~ts ~ts')
     run(username, cmd, arg)
     prompt(username)
   end
@@ -58,6 +63,7 @@ defmodule Morsegram do
   defp run(username, '#', 'quit') do
     IO.puts "Disconnecting from Morsegram..."
     IO.puts "See you later, #{username}"
+    :global.unregister_name(username)
     System.halt(0)
   end
   defp run(_, '#', 'help') do
