@@ -1,4 +1,7 @@
 defmodule Support do
+    @moduledoc """
+    Documentation for Support.
+    """
 
     @doc """
     Given a string and a color it returns that string with the given color.
