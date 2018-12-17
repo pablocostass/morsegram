@@ -6,12 +6,6 @@ defmodule Morsegram do
   @doc """
   Function used to set everything up for the client.
   Also needed by OptionParser to work.
-
-  ## Examples
-
-      iex> Morsegram.hello()
-      :world
-
   """
   def main(argv) do
     argv

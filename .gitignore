@@ -1,3 +1,5 @@
 _build
 morsegram
+deps
+mix.lock
 erl_crash.dump
