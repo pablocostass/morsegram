@@ -146,11 +146,12 @@ An example of the chat in use:
 
 ## Credits
 Done by:
-Last name, first name  | Email
-------------- | -------------
-Ameneiros López, Bruno | bruno.ameneiros@udc.es
-Costas Sánchez, Pablo | pablo.costas@udc.es
-Garea Cidre, Javier | javier.garea@udc.es
-Gómez García, Adrián | a.gomezg@udc.es
-Piñeiro Ferrero, Ángel | angel.pineiro.ferrero@udc.es
-Rivas Dorado, Héctor | hector.rivas@udc.es
+
+| Last name, first name  | Email                        |
+|------------------------|------------------------------|
+| Ameneiros López, Bruno | bruno.ameneiros@udc.es       |
+| Costas Sánchez, Pablo  | pablo.costass@udc.es         |
+| Garea Cidre, Javier    | javier.garea@udc.es          |
+| Gómez García, Adrián   | a.gomezg@udc.es              |
+| Piñeiro Ferrero, Ángel | angel.pineiro.ferrero@udc.es |
+| Rivas Dorado, Héctor   | hector.rivas@udc.es          |
